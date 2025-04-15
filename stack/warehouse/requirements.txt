@@ -1,0 +1,7 @@
+# requirements here
+psycopg2-binary
+sqlalchemy
+pydantic
+asyncpg
+fastapi[standard]
+dotenv

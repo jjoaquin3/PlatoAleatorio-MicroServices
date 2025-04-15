@@ -1,0 +1,4 @@
+pydantic
+python-dotenv
+motor
+fastapi[standard]

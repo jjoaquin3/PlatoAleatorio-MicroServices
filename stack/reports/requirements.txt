@@ -1,0 +1,6 @@
+# requirements here
+pydantic
+asyncpg
+python-dotenv
+requests
+fastapi[standard]

@@ -1,0 +1,49 @@
+[
+    {
+      "recipe": "Tomato Rice",
+      "ingredients": [
+        {"name": "tomato", "state": "pending", "quantity": 3, "pending": 3, "send_out": 0},
+        {"name": "rice", "state": "pending", "quantity": 2, "pending": 2, "send_out": 0}
+      ]
+    },
+    {
+      "recipe": "Cheese Burger",
+      "ingredients": [
+        {"name": "lettuce", "state": "pending", "quantity": 2, "pending": 2, "send_out": 0},
+        {"name": "onion", "state": "pending", "quantity": 1, "pending": 1, "send_out": 0},
+        {"name": "cheese", "state": "pending", "quantity": 2, "pending": 2, "send_out": 0},
+        {"name": "meat", "state": "pending", "quantity": 1, "pending": 1, "send_out": 0}
+      ]
+    },
+    {
+      "recipe": "Chicken Salad",
+      "ingredients": [
+        {"name": "lettuce", "state": "pending", "quantity": 3, "pending": 3, "send_out": 0},
+        {"name": "chicken", "state": "pending", "quantity": 2, "pending": 2, "send_out": 0},
+        {"name": "onion", "state": "pending", "quantity": 1, "pending": 1, "send_out": 0}
+      ]
+    },
+    {
+      "recipe": "Potato Wedges",
+      "ingredients": [
+        {"name": "potato", "state": "pending", "quantity": 5, "pending": 5, "send_out": 0},
+        {"name": "ketchup", "state": "pending", "quantity": 3, "pending": 3, "send_out": 0}
+      ]
+    },
+    {
+      "recipe": "Lemon Chicken Rice",
+      "ingredients": [
+        {"name": "chicken", "state": "pending", "quantity": 3, "pending": 3, "send_out": 0},
+        {"name": "lemon", "state": "pending", "quantity": 2, "pending": 2, "send_out": 0},
+        {"name": "rice", "state": "pending", "quantity": 2, "pending": 2, "send_out": 0}
+      ]
+    },
+    {
+      "recipe": "Ketchup Fries",
+      "ingredients": [
+        {"name": "potato", "state": "pending", "quantity": 4, "pending": 4, "send_out": 0},
+        {"name": "ketchup", "state": "pending", "quantity": 4, "pending": 4, "send_out": 0}
+      ]
+    }
+  ]
+  

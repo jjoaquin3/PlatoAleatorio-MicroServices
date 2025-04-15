@@ -1,0 +1,6 @@
+# requirements here
+jinja2
+asyncpg
+python-dotenv
+requests
+fastapi[standard]
