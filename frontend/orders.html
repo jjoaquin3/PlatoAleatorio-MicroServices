@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Orders</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Lunch</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li><a href="ingredients.html">Ingredients</a></li>
+                <li><a href="purchases.html">Purchases</a></li>
+                <li><a href="recipes.html">Recipes</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h3>Orders List</h3>
+        <table id="orders-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Recipe</th>
+                    <th>State</th>
+                    <th>Step</th>                    
+                    <th>Create At</th>
+                    <th>Updated At</th>
+                </tr>
+            </thead>
+            <tbody id="orders-container">
+                <!-- Las órdenes se mostrarán aquí dinámicamente -->
+            </tbody>
+        </table>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 All rights reserved</p>
+    </footer>
+    
+    <script src="js/orders.js" type="module"></script>
+</body>
+</html>

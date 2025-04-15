@@ -1,0 +1,44 @@
+<!-- lunch.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Lunch</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Request Lunch</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Lunch</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li><a href="ingredients.html">Ingredients</a></li>
+                <li><a href="purchases.html">Purchases</a></li>
+                <li><a href="recipes.html">Recipes</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h3>Request a New Lunch</h3>
+        
+        <!-- Botón para enviar la solicitud de platillo -->
+        <button id="request-lunch-button">Request Lunch</button>
+
+        <!-- Área donde se mostrará la respuesta -->
+        <div id="lunch-response" style="display: none;">
+            <h3>Order Details</h3>
+            <p id="lunch-message"></p>
+            <p><strong>Recipe:</strong> <span id="lunch-recipe"></span></p>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 All rights reserved</p>
+    </footer>
+
+    <script src="js/lunch.js" type="module"></script>  
+</body>
+</html>

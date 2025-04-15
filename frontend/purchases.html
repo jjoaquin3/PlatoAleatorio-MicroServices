@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchases</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Purchases</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Lunch</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li><a href="ingredients.html">Ingredients</a></li>
+                <li><a href="purchases.html">Purchases</a></li>
+                <li><a href="recipes.html">Recipes</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <h3>Purchases History</h3>
+        <table id="purchases-table">
+            <thead>
+                <tr>
+                    <th>Ingredient Name</th>
+                    <th>Quantity</th>
+                    <th>Origin</th>
+                    <th>Purchase Date</th>
+                </tr>
+            </thead>
+            <tbody id="purchases-container">
+                <!-- Las compras se mostrarán aquí dinámicamente -->
+            </tbody>
+        </table>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 All rights reserved</p>
+    </footer>
+
+    <script src="js/purchases.js" type="module"></script>
+</body>
+</html>
