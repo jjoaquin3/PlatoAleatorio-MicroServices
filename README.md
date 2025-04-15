@@ -29,6 +29,26 @@ El sistema está diseñado para manejar pedidos masivos y funcionar de manera ef
 - **Frontend**: 
   - **Nginx**: Servidor web y proxy inverso que redirige las solicitudes desde el frontend hacia los microservicios (middle-server, reports-server) y maneja las peticiones API con CORS habilitado. permitiendo el mapeo entre los dockers.
 
+
+``` bash
+├── index.html
+├── ingredients.html
+├── lunch.html
+├── orders.html
+├── purchases.html
+├── recipes.html
+├── assets
+├── css
+│   └── style.css
+└── js
+    ├── api.js
+    ├── ingredients.js
+    ├── lunch.js
+    ├── orders.js
+    ├── purchases.js
+    └── recipes.js
+``` 
+
 - **Microservicios**:
   - **Cocina (kitchen-server)**: Gestiona las solicitudes de preparación de platos aleatorios, almacenando datos en **MongoDB**.
   - **Bodega (warehouse-server)**: Gestiona el inventario de ingredientes, realiza compras a la plaza de mercado cuando faltan ingredientes y usa **PostgreSQL**.
@@ -36,6 +56,117 @@ El sistema está diseñado para manejar pedidos masivos y funcionar de manera ef
   - **Middle (middle-server)**: Orquesta el flujo entre cocina, bodega y plaza de mercado, manejando las interacciones asincrónicas.
   - **Middle Worker (middle-worker)**: Procesa tareas en segundo plano, como la verificación de ingredientes y la gestión de compras.
   - **Report Service (reports-server)**: Genera informes sobre pedidos, ingredientes y compras.
+
+``` bash
+├── kitchen-service
+│   ├── dummy.txt
+│   └── app
+│       ├── main.py
+│       ├── config
+│       │   ├── database_nosql.py
+│       │   ├── date_zone.py
+│       │   └── dependencies.py
+│       ├── controller
+│       │   ├── order_controller.py
+│       │   └── recipe_controller.py
+│       ├── model
+│       │   ├── order.py
+│       │   ├── recipe.py
+│       │   └── schema
+│       │       ├── order.py
+│       │       └── recipe.py
+│       ├── repository
+│       │   ├── order_repository.py
+│       │   └── recipe_repository.py
+│       ├── security
+│       │   └── auth.py
+│       ├── service
+│       │   ├── order_service.py
+│       │   └── recipe_service.py
+│       └── util
+├── market-service
+│   ├── dummy.txt
+│   └── app
+│       ├── main.py
+│       ├── config
+│       │   ├── database.py
+│       │   ├── date_zone.py
+│       │   └── dependencies.py
+│       ├── controller
+│       │   └── market_controller.py
+│       ├── model
+│       │   ├── purchase.py
+│       │   └── schema
+│       │       └── purchase.py
+│       ├── repository
+│       │   └── purchase_repository.py
+│       ├── security
+│       │   └── auth.py
+│       ├── service
+│       │   └── market_service.py
+│       └── util
+│           └── external_api.py
+├── middle-service
+│   ├── worker.py
+│   └── app
+│       ├── main.py
+│       ├── config
+│       │   ├── date_zone.py
+│       │   ├── dependencies.py
+│       │   └── redis_client.py
+│       ├── controller
+│       │   ├── debug_controller.py
+│       │   └── flow_controller.py
+│       ├── model
+│       │   ├── order.py
+│       │   └── schema
+│       │       └── order.py
+│       ├── repository
+│       │   └── remote_gateway.py
+│       ├── security
+│       │   └── auth.py
+│       ├── service
+│       │   ├── flow_service.py
+│       │   └── queue_worker.py
+│       └── util
+│           └── retry.py
+├── reports-service
+│   ├── dummy.txt
+│   └── app
+│       ├── main.py
+│       ├── config
+│       ├── controller
+│       │   └── reports_controller.py
+│       ├── model
+│       │   └── schema
+│       │       └── order.py
+│       ├── repository
+│       │   └── remote_gateway.py
+│       ├── security
+│       │   └── auth.py
+│       ├── service
+│       │   └── reports_service.py
+│       └── util
+└── warehouse-service
+    ├── dummy.txt
+    └── app
+        ├── main.py
+        ├── config
+        │   ├── database.py
+        │   └── dependencies.py
+        ├── controller
+        │   └── ingredient_controller.py
+        ├── model
+        │   ├── ingredient.py
+        │   └── schema
+        │       └── ingredient.py
+        ├── repository
+        │   └── ingredient_repository.py
+        ├── security
+        │   └── auth.py
+        └── service
+            └── ingredient_service.py
+```
 
 - **Bases de Datos**:
   - **PostgreSQL**: Almacena el inventario de ingredientes y los detalles de las compras.
@@ -49,38 +180,38 @@ El sistema está diseñado para manejar pedidos masivos y funcionar de manera ef
 - **market_network**: Conecta el market-server con la plaza de mercado y otros servicios.
 - **restaurant_network**: Red común que permite la comunicación entre el frontend, microservicios y bases de datos.
 
-### Interacción entre Servicios
+### Diagrama
 
 
+``` bash
                                 +----------------------+
                                 |      Frontend        |
-                                |   (Comunicaciones    |
-                                |    con Middle &      |
-                                |    Reports)          |
+                                |   (Comunicaciones +  |
+                                |    proxy)            |
                                 +----------+-----------+
                                            |
                        +-------------------+------------------+
                        |                                      |
                        v                                      v
-             +---------------------+               +---------------------+
-             |    Middle Server    |               |   Reports Service   |
-             | (Orquestador Lógica) |               |  (Genera Informes) |
-             +---------------------+               +---------------------+
+             +----------------------+               +---------------------+
+             |    Middle Server     |               |   Reports Service   |
+             | (Orquestador Lógica) |               |  (Genera Informes)  |
+             +----------------------+               +---------------------+
 
 
 
-                       +---------------------+
-                       |    Middle Server    |
+                       +----------------------+
+                       |    Middle Server     |
                        | (Orquestador Lógica) |
-                       +----------+----------+
+                       +----------+-----------+
                                   |
                +------------------+------------------+
                |                                     |
                v                                     v
-       +------------------+                  +----------------------+
+       +-------------------+                  +----------------------+
        |      Redis        | <--------------->|     Worker          |
        | (Colas Asíncronas)|                  |(Procesos Asíncronos)|
-       +------------------+                  +----------------------+
+       +-------------------+                  +----------------------+
 
 
 
@@ -98,6 +229,7 @@ El sistema está diseñado para manejar pedidos masivos y funcionar de manera ef
     |   Server         |      |   Server         |      |   Server         |
     |  (MongoDB)       |      |  (PostgreSQL)    |      |  (PostgreSQL)    |
     +------------------+      +------------------+      +------------------+
+``` 
 
 - **Frontend**: La interfaz de usuario se conecta a Nginx, que redirige las solicitudes a los microservicios adecuados.
 - **Middle**: El middle-server gestiona la lógica de negocio, verificando la disponibilidad de ingredientes y gestionando compras a través de la plaza de mercado.
@@ -133,7 +265,6 @@ Para configurar el entorno local y levantar todos los servicios utilizando Docke
    Primero, clona el repositorio en tu máquina local:
 ```bash
     git clone https://github.com/jjoaquin3/PlatoAleatorio-MicroServices.git
-         
 ```
 
     Entra y busca la carpeta stack
@@ -283,7 +414,8 @@ A continuación, se incluyen algunas consideraciones y recomendaciones important
 
 ### 5. **Escalabilidad**
    - **Escalabilidad Horizontal**: La arquitectura puedes agregar más instancias de microservicios para manejar una carga mayor sin que el sistema se vea afectado.  **Docker** y **Docker Compose** para facilitar la creación de múltiples instancias de los microservicios según sea necesario.
-
+   
+   ##### PD. La orden 0 es solo para ver si el init lograba insertar algo a mongo pero va a parecer que esta complete y en kitchen :)
 ---
 
 🔥 **¡Listo! 
