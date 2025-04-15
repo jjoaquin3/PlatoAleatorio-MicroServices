@@ -1,0 +1,211 @@
+services:
+
+  restaurant-db-sql:
+    image: postgres:15-alpine  
+    container_name: restaurant-db-sql
+    env_file:
+      - ./db_sql/.env
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - restaurant-db-sql-data:/var/lib/postgresql/data
+    networks:
+    - kitchen_network     #este se usará para conectar entre el kitchen-server y el gateway cuando exista
+    - warehouse_network   #este se usará para conectar entre el warehouse-server y el gateway cuando exista
+    - market_network      #este se usará para conectar entre el market-server y el gateway cuando exista
+    - restaurant_network  #este está para probar localmente el acceso a las dbs
+
+  restaurant-db-nosql:
+    image: mongo:latest
+    container_name: restaurant-db-nosql
+    env_file:
+      - ./db_nosql/.env
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD","mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    volumes:
+      - restaurant-db-nosql-data:/data/db
+    networks:
+      - kitchen_network     #este se usará para conectar entre el kitchen-server y el gateway cuando exista      
+      - restaurant_network  #este está para probar localmente el acceso a las dbs
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - restaurant_network
+
+
+  restaurant-db-init:
+    build:
+      context: ./init
+      dockerfile: Dockerfile
+    container_name: restaurant-db-init
+    env_file:
+      - ./init/.env
+    volumes:
+      - ./init/dataset:/workspace/dataset  
+      - ./init/scripts:/workspace/scripts  
+    depends_on:
+      restaurant-db-sql:
+        condition: service_healthy
+      restaurant-db-nosql:
+        condition: service_healthy
+    networks:      
+      - restaurant_network
+  
+  kitchen-server:
+    image: python:3.10-alpine
+    container_name: kitchen-server
+    env_file:
+      - ./kitchen/.env
+    volumes:
+      - ../backend/kitchen-service:/workspace
+      - ./kitchen/requirements.txt:/tmp/requirements.txt
+    ports:
+      - "8001:8000"
+    working_dir: /workspace
+    command: >
+      sh -c "pip install --no-cache-dir -r /tmp/requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    depends_on:
+      restaurant-db-nosql:
+        condition: service_healthy      
+    networks:
+      - kitchen_network #este se usará para conectar entre la kitchen-db y kitchen-server y el gateway cuando exista
+      - restaurant_network #este está para probar localmente el acceso a las APIS
+
+  warehouse-server:
+    image: python:3.10-alpine
+    container_name: warehouse-server
+    env_file:
+      - ./warehouse/.env
+    volumes:
+      - ../backend/warehouse-service:/workspace
+      - ./warehouse/requirements.txt:/tmp/requirements.txt
+    ports:
+      - "8002:8000"
+    working_dir: /workspace
+    command: >
+      sh -c "pip install --no-cache-dir -r /tmp/requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    depends_on:
+      restaurant-db-sql:
+        condition: service_healthy      
+    networks:
+      - warehouse_network #este se usará para conectar entre la warehouse-db y warehouse-server y el gateway cuando exista
+      - restaurant_network #este está para probar localmente el acceso a las APIS
+  
+  market-server:
+    image: python:3.10-alpine
+    container_name: market-server
+    env_file:
+      - ./market/.env
+    volumes:
+      - ../backend/market-service:/workspace
+      - ./market/requirements.txt:/tmp/requirements.txt
+    ports:
+      - "8003:8000"
+    working_dir: /workspace
+    command: >
+      sh -c "pip install --no-cache-dir -r /tmp/requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    depends_on:
+      restaurant-db-sql:
+        condition: service_healthy      
+    networks:
+      - market_network #este se usará para conectar entre la market-db y market-server y el gateway cuando exista
+      - restaurant_network #este está para probar localmente el acceso a las APIS
+
+  middle-server:
+    image: python:3.10-alpine
+    container_name: middle-server
+    env_file:
+      - ./middle/.env
+    volumes:
+      - ../backend/middle-service:/workspace   
+      - ./middle/requirements.txt:/tmp/requirements.txt         
+    ports:
+      - "8004:8000"   
+    working_dir: /workspace
+    command: >
+      sh -c "pip install --no-cache-dir -r /tmp/requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"   
+    depends_on:
+      redis:
+        condition: service_started
+    networks:
+      - restaurant_network
+
+  middle-worker:
+    build:
+      context: ./middle
+      dockerfile: Dockerfile
+    container_name: middle-worker
+    env_file:
+      - ./middle/.env
+    volumes:
+      - ../backend/middle-service:/workspace        
+    command: ["sh", "-c", "sleep 5 && python worker.py"]
+    depends_on:
+      redis:
+        condition: service_started
+    networks:
+      - restaurant_network
+  
+  reports-server:
+    image: python:3.10-alpine
+    container_name: reports-server
+    env_file:
+      - ./reports/.env
+    volumes:
+      - ../backend/reports-service:/workspace   
+      - ./reports/requirements.txt:/tmp/requirements.txt         
+    ports:
+      - "8005:8000"   
+    working_dir: /workspace
+    command: >
+      sh -c "pip install --no-cache-dir -r /tmp/requirements.txt && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"   
+    depends_on:
+      restaurant-db-sql:
+        condition: service_healthy
+      restaurant-db-nosql:
+        condition: service_healthy
+    networks:
+      - restaurant_network      
+  frontend-server:
+    image: nginx:alpine 
+    container_name: frontend-server
+    volumes:
+      - ../frontend:/usr/share/nginx/html  
+      - ./front/nginx.conf:/etc/nginx/conf.d/default.conf #/conf.d/default.conf
+    ports:
+      - "8080:80"  # Exponemos el puerto 80 de Nginx al puerto 8000 en el host
+    depends_on:
+      - reports-server
+    networks:
+      - restaurant_network
+
+
+volumes:
+  restaurant-db-sql-data:  
+  restaurant-db-nosql-data:
+
+
+networks:
+  kitchen_network:
+    driver: bridge
+  warehouse_network:
+    driver: bridge
+  market_network:
+    driver: bridge
+  restaurant_network:
+    driver: bridge
